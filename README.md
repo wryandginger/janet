@@ -1,5 +1,6 @@
 # Janet | 👩🏽‍🏫 (not a girl)
-Janet is a collection of common faculty administrative functions in one easy to use docker container and Gradio app!
+Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collection of common faculty administrative functions in one easy to use docker container and Gradio app!
+
 I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 
 # 👩🏽‍🏫 Janet can:
@@ -44,7 +45,7 @@ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 - Remind a student they missed a deadline
 - Warn a student about behavior or grades
 - Tell a student on waitlist you aren't allowing overloads!
-- "Can it, Janet!"
+- "Can it, [Janet!"](https://www.youtube.com/watch?v=t4WP3bODmfo)
 
 </details>
 
