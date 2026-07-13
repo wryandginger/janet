@@ -15,6 +15,6 @@ services:
       - GRADIO_AUTH_USER=professor
       - GRADIO_AUTH_PASSWORD=notfullbutfoolprof1
     volumes:
-      # Persistent host file mount mapping to store configuration text files locally
-      - ./janet_data:/app
+      - ./janet_data/grade_scale.txt:/app/grade_scale.txt
+      - ./janet_data/templates:/app/templates_dir
     restart: unless-stopped
