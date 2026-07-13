@@ -56,14 +56,14 @@ Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collectio
 # 👩🏽‍🏫 Janet IS:
 
 <details>
-<summary><b>👩🏾‍⚖️ FERPA friendly*</b></summary>
+<summary><b>👩🏾‍⚖️ FERPA friendly**</b></summary>
 
 - No student record/data is saved on the server.
 - ALL work is held only in the browser session. Close the tab and poof, it's gone.
-- All CSVs are 'deliberative' or 'process' documents, so they shouldn't need record retention*
+- All CSVs are 'deliberative' or 'process' documents, so they shouldn't need record retention**
 - Be extra compliant by not using last names or avoiding names all together.
 - If you're worried, don't download anything.
-- * I'm not a lawyer. I'm not your lawyer. This is not legal advice.
+- **I'm not a lawyer. I'm not your lawyer. This is not legal advice.
 
 </details>
 
