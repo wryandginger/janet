@@ -981,9 +981,19 @@ with gr.Blocks(title="Janet") as app:
 
 
 # Launch configuration exposed to all subnets and external local IP interfaces
-app.launch(
-    server_name="0.0.0.0", 
-    server_port=7435, 
-    show_error=True,
-    theme=gr.Theme.from_hub("hmb/wii")
-)
+if __name__ == "__main__":
+    # Fetch credentials dynamically from the docker-compose environment variables
+    auth_user = os.environ.get("GRADIO_AUTH_USER")
+    auth_pass = os.environ.get("GRADIO_AUTH_PASSWORD")
+    
+    # INDENTATION FIXED: These lines must be padded with 4 spaces to remain inside the block
+    auth_credentials = [(auth_user, auth_pass)] if auth_user and auth_pass else None
+
+    app.launch(
+        server_name="0.0.0.0", 
+        server_port=7435, 
+        show_error=True,
+        auth=auth_credentials,
+        theme=gr.Theme.from_hub("hmb/wii")
+    )
+
