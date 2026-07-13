@@ -1,7 +1,10 @@
 # Janet | 👩🏽‍🏫 (not a girl)
 Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collection of common faculty administrative functions in one easy to use docker container and Gradio app!
-
-I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
+- ✨ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
+- ⚠️ Future edits are coming to clean up the UI and Python mess. 
+- 🕵️ While I used AI to help me build this, this project does NOT interact with ANY generative AI service/system.
+- ⓘ This is mostly a fancy comment bank with some built in spreadsheet tools.
+- 🏛️ I did a lot of philosophical work for you: It's morally fine, as long as you don't commercialize this, exploit me, or use Janet for evil.
 
 # 👩🏽‍🏫 Janet can:
 
@@ -9,8 +12,8 @@ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 <summary><b>📅 Generate a syllabus calendar with repeating assignments</b></summary>
 
 - It can overlay an ICS calendar file from upload or a weblink.
-- This means your institutional calendar can be overlayed on top of your syllabus.
-- You can edit and download your completed course calendar, or cut/paste directly into an LMS (Canvas)
+- This means your institutional calendar can be overlayed on top of your course calendar.
+- You can edit and download your completed course calendar, or cut/paste directly into an LMS (Canvas, Blackboard)
 
 </details>
 
@@ -53,12 +56,14 @@ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 # 👩🏽‍🏫 Janet IS:
 
 <details>
-<summary><b>👩🏾‍⚖️ FERPA friendly</b></summary>
+<summary><b>👩🏾‍⚖️ FERPA friendly*</b></summary>
 
 - No student record/data is saved on the server.
 - ALL work is held only in the browser session. Close the tab and poof, it's gone.
-- All CSVs are 'deliberative' or 'process' documents, so they shouldn't need record retention.
+- All CSVs are 'deliberative' or 'process' documents, so they shouldn't need record retention*
 - Be extra compliant by not using last names or avoiding names all together.
+- If you're worried, don't download anything.
+- * I'm not a lawyer. I'm not your lawyer. This is not legal advice.
 
 </details>
 
@@ -75,6 +80,8 @@ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 
 - The application is built on Gradio, so you get all the API and security options.
 - Runs in docker, so you control this.
+- Works with a reverse proxy.
+- You have easy access to the docker container to verify compliance.
 
 </details>
 
@@ -120,7 +127,7 @@ I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 </details>
 
 <details>
-<summary><b>🚢 Deploy via Portainer Web UI Stack Repository</b></summary>
+<summary><b>🚢 Deploy via Portainer</b></summary>
 
 ### Web Dashboard Configuration Step-by-Step
 
