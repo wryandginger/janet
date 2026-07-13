@@ -7,10 +7,12 @@ import urllib.request
 from ics import Calendar
 
 # Comment bank logic
+DATA_DIR = "templates_dir"
+os.makedirs(DATA_DIR, exist_ok=True)
 
 def list_comment_files():
     # Automatically scan for any custom user feedback files matching the pattern
-    files = glob.glob("comments_*.txt")
+    files = glob.glob(os.path.join(DATA_DIR, "comments_*.txt"))
     if not files:
         # Generate an out-of-the-box template if none exist on launch
         default_name = "comments_assignment1.txt"
@@ -99,14 +101,18 @@ def handle_file_upload(file_obj):
     if not base.startswith("comments_") or not base.endswith(".txt"):
         base = f"comments_{base}" if not base.endswith(".txt") else f"comments_{base[:-4]}.txt"
     
+    # Reroute target location to your persistent data subdirectory layer path
+    target_path = os.path.join(DATA_DIR, base)
     try:
-        with open(file_obj.name, "r", encoding="utf-8") as src, open(base, "w", encoding="utf-8") as dest:
+        with open(file_obj.name, "r", encoding="utf-8") as src, open(target_path, "w", encoding="utf-8") as dest:
             dest.write(src.read())
     except Exception:
         pass
         
     updated_files = list_comment_files()
-    return gr.update(choices=updated_files, value=base)
+    # Explicitly hand the target_path variable back to selection components to auto-focus it
+    return gr.update(choices=updated_files, value=target_path)
+
 
 def build_student_feedback(name, filename, *dynamic_inputs):
     if not name.strip():
@@ -442,7 +448,7 @@ def make_html_table(df):
 
 def list_boundary_files():
     # Automatically scan for files matching the required system pattern prefix
-    files = glob.glob("boundaries_*.txt")
+    files = glob.glob(os.path.join(DATA_DIR, "boundaries_*.txt"))
     if not files:
         # Pre-seed the system default missing assignment text template file if empty
         default_name = "boundaries_missing_assignment_warning.txt"
@@ -473,12 +479,17 @@ def handle_boundary_upload(file_obj):
     base = os.path.basename(file_obj.name)
     if not base.startswith("boundaries_") or not base.endswith(".txt"):
         base = f"boundaries_{base}" if not base.endswith(".txt") else f"boundaries_{base[:-4]}.txt"
+    
+    # Reroute destination path safely into the Docker volume subfolder
+    target_path = os.path.join(DATA_DIR, base)
     try:
-        with open(file_obj.name, "r", encoding="utf-8") as src, open(base, "w", encoding="utf-8") as dest:
+        with open(file_obj.name, "r", encoding="utf-8") as src, open(target_path, "w", encoding="utf-8") as dest:
             dest.write(src.read())
     except Exception:
         pass
-    return gr.update(choices=list_boundary_files(), value=base)
+    
+    # Return the full path to the dropdown value so it selects correctly
+    return gr.update(choices=list_boundary_files(), value=target_path)
 
 def handle_boundary_dropdown_change(filename):
     if not filename or not os.path.exists(filename):
