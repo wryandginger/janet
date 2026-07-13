@@ -18,3 +18,5 @@ services:
       - ./janet_data/grade_scale.txt:/app/grade_scale.txt
       - ./janet_data/templates:/app/templates_dir
     restart: unless-stopped
+    stdin_open: true  
+    tty: true   
