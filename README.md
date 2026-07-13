@@ -1,5 +1,6 @@
 # Janet | 👩🏽‍🏫 (not a girl)
 Janet is a collection of common faculty administrative functions in one easy to use docker container and Gradio app!
+I vibecoded Janet from Google and Brave's free AI modes, I'm sorry.
 
 # 👩🏽‍🏫 Janet can:
 
