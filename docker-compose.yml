@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  janet-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: janetapp
+    ports:
+      - "7435:7435"
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7435  # IF you change this, you MUST change the python file last line
+      # Enforces global username and password authentication profiles. Change these!
+      - GRADIO_AUTH_USER=professor
+      - GRADIO_AUTH_PASSWORD=notfullbutfoolprof1
+    volumes:
+      # Persistent host file mount mapping to store configuration text files locally
+      - ./janet_data:/app
+    restart: unless-stopped
