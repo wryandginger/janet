@@ -9,8 +9,11 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system dependencies needed for compiling certain Python extensions
+# Adding wget and nano for in-container tweaks on the fly
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    wget \
+    nano \ 
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only the requirements list first to leverage Docker layer caching
