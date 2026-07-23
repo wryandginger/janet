@@ -6,15 +6,17 @@ from datetime import datetime, timedelta
 import urllib.request
 from ics import Calendar
 
-# Comment bank logic
+# Comment bank
 DATA_DIR = "templates_dir"
 os.makedirs(DATA_DIR, exist_ok=True)
+# Grade Scale logic
+CONFIG_FILE = "grade_scale.txt"
 
 def list_comment_files():
     # Automatically scan for any custom user feedback files matching the pattern
     files = glob.glob(os.path.join(DATA_DIR, "comments_*.txt"))
     if not files:
-        # Generate an out-of-the-box template if none exist on launch
+        # Generate a generic template if none exist on launch
         default_name = "comments_assignment1.txt"
         default_content = (
             "[OPENING]\n"
@@ -24,6 +26,7 @@ def list_comment_files():
             "[CRITIQUE]\n"
             "Please double check your formatting and APA/MLA citations.\n"
             "Make sure to fully expand on your topic sentences.\n"
+            "[CRITIQUE2]\n"
             "The conclusion felt a bit rushed; try to summarize all key points.\n"
             "Watch out for grammar and minor proofreading slips."
         )
@@ -80,11 +83,9 @@ def dynamic_render_template(filename):
             sec_name = sec_names[i]
             items = sections[sec_name]
             
-            # Use multi-choice checkbox styles for critique rules, standard choices for everything else
             if "critique" in sec_name.lower() or "injection" in sec_name.lower():
                 final_updates.append(gr.update(visible=True, choices=items, value=[], label=f"👉 Select {sec_name}:"))
             else:
-                # Pre-select the first text line automatically as a smart default value
                 default_val = items[0] if items else None
                 final_updates.append(gr.update(visible=True, choices=items, value=default_val, label=f"👉 Choose {sec_name}:"))
         else:
@@ -171,10 +172,6 @@ def handle_file_dropdown_change(filename):
     file_path = filename if filename and os.path.exists(filename) else None
     
     return openings_update, critiques_update, file_path
-
-# Grade Scale logic
-
-CONFIG_FILE = "grade_scale.txt"
 
 def load_grade_scale():
     # Default parameters written automatically if the configuration text file is missing
@@ -636,9 +633,9 @@ with gr.Blocks(title="Janet") as app:
                     grade_btn = gr.Button("Compute Alphanumeric Metrics Profiles", variant="primary")
                     gr.Markdown("💡 *Tip: You can modify standard baselines inside **`grade_scale.txt`** to change defaults across subsequent app boots.*")
                 with gr.Column():
-                    gr.Markdown("👇 **Click the copy button in the top right corner of the box below to grab your columns for Excel:**")
+                    gr.Markdown("👇 **Highlight the values, then copy to Excel:**")
                     
-                    gpa_column_out = gr.Code(label="Excel Ready Column Vectors", lines=14, language="markdown", interactive=False)
+                    gpa_column_out = gr.Code(label="Excel Ready Column", lines=14, language="markdown", interactive=False)
                     roster_download = gr.File(label="📥 Download Grades CSV for Excel")
                     
             def process_grades(points_raw, selected_cols, custom_max_points):
@@ -715,23 +712,23 @@ with gr.Blocks(title="Janet") as app:
                     # Master container housing our dynamic component mapping layer slots
                     with gr.Column(visible=True) as dynamic_container:
                         gr.Markdown("### 💬 Custom Template Input Elements")
-                        slot_0 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
+                        slot_0 = gr.Dropdown(visible=False, choices=[])
                         slot_1 = gr.CheckboxGroup(visible=False, choices=[])
-                        slot_2 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_3 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_4 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_5 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_6 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_7 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_8 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
-                        slot_9 = gr.Dropdown(visible=False, choices=[], allow_custom_value=True)
+                        slot_2 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_3 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_4 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_5 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_6 = gr.Dropdown(visible=False, choices=[])
+                        slot_7 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_8 = gr.CheckboxGroup(visible=False, choices=[])
+                        slot_9 = gr.Dropdown(visible=False, choices=[])
                     
                     slot_list = [slot_0, slot_1, slot_2, slot_3, slot_4, slot_5, slot_6, slot_7, slot_8, slot_9]
                     generate_comment_btn = gr.Button("Assemble Feedback Text Block", variant="primary")
                     
                 with gr.Column(scale=1):
-                    gr.Markdown("### 📋 Formatted Output Preview")
-                    comment_out = gr.Code(label="Ready to Copy via Markdown Container", language="markdown", interactive=False, lines=10)
+                    gr.Markdown("### 📋 Assembled Comment")
+                    comment_out = gr.Textbox(label="Copy or Edit Comment:", interactive=True, lines=12)
                     
                     batch_btn = gr.Button("➕ Append Record to Session Batch Table", variant="primary")
                     
@@ -760,7 +757,6 @@ with gr.Blocks(title="Janet") as app:
                         with gr.Column():
                             upload_box = gr.File(label="Upload New Template (Saves as comments_filename.txt)", file_types=[".txt"])
 
-            # Wire up dropdown option tracking updates
             file_dropdown.change(
                 fn=dynamic_render_template, 
                 inputs=[file_dropdown], 
@@ -802,7 +798,7 @@ with gr.Blocks(title="Janet") as app:
 
 
 
-        # TAB 4: FRIENDLY CANVAS REMINDERS
+        # TAB 4: CANVAS Announcements
         with gr.TabItem("📣 4. Canvas Announcements"):
             gr.Markdown("### Canvas Announcement Generator")
             with gr.Row():
@@ -866,8 +862,8 @@ with gr.Blocks(title="Janet") as app:
                     generate_announcement_btn = gr.Button("Generate Announcement Draft Template", variant="primary")
                     
                 with gr.Column(scale=1):
-                    gr.Markdown("👇 **Click the copy button in the top right corner of the box below to grab the layout text block:**")
-                    rem_out = gr.Code(label="Assembled Canvas Announcement (Ready to Post)", lines=32, language="markdown", interactive=False)
+                    gr.Markdown("### 📋 Assembled Announcement")
+                    rem_out = gr.Textbox(label="Copy or Edit Announcement:", lines=12, interactive=True)
             
             inputs_p4 = [
                 wk_num, greeting_txt, context_txt, read_topic, 
@@ -886,7 +882,7 @@ with gr.Blocks(title="Janet") as app:
                 outputs=[rem_out]
             )
 
-        # TAB 5: DIFFICULT STUDENT RESPONDER
+        # TAB 5: Canned Email Geneator
         with gr.TabItem("🥫 5. Can it, Janet!"):
             gr.Markdown("### Canned Email Geneator")
             
@@ -896,7 +892,7 @@ with gr.Blocks(title="Janet") as app:
             
             with gr.Row():
                 with gr.Column(scale=1):
-                    gr.Markdown("### 🛠️ Scenario & Student Records Variable Input")
+                    gr.Markdown("### 🛠️ Variable Input")
                     
                     with gr.Row():
                         student_name_p5 = gr.Textbox(label="Student First Name:", placeholder="Janet")
@@ -938,8 +934,8 @@ with gr.Blocks(title="Janet") as app:
                     generate_email_btn = gr.Button("Compose Draft", variant="primary")
                     
                 with gr.Column(scale=1):
-                    gr.Markdown("👇 **Click the copy button in the top right corner of the box below to grab the layout text block:**")
-                    diff_out = gr.Code(label="Assembled Professional Boundary Communication Email", lines=24, language="markdown", interactive=False)
+                    gr.Markdown("### 📋 Assembled Message")
+                    diff_out = gr.Textbox(label="Copy or Edit Message:", lines=12, interactive=True)
             
             inputs_p5 = [
                 student_name_p5,
@@ -978,15 +974,11 @@ with gr.Blocks(title="Janet") as app:
             )
 
 
-
-
-# Launch configuration exposed to all subnets and external local IP interfaces
 if __name__ == "__main__":
     # Fetch credentials dynamically from the docker-compose environment variables
     auth_user = os.environ.get("GRADIO_AUTH_USER")
     auth_pass = os.environ.get("GRADIO_AUTH_PASSWORD")
     
-    # INDENTATION FIXED: These lines must be padded with 4 spaces to remain inside the block
     auth_credentials = [(auth_user, auth_pass)] if auth_user and auth_pass else None
 
     app.launch(
@@ -996,4 +988,3 @@ if __name__ == "__main__":
         auth=auth_credentials,
         theme=gr.Theme.from_hub("hmb/wii")
     )
-
