@@ -82,7 +82,7 @@ Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collectio
 - Runs in docker, so you control this.
 - Works with a reverse proxy.
 - You have easy access to the docker container to verify compliance.
-- Local only release coming soon.
+- Local only Windows version now available.
 
 </details>
 
