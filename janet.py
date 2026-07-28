@@ -162,7 +162,16 @@ def append_to_batch(name, score, comment, current_state):
     return current_state, df, batch_path
 
 def clear_session_batch():
-    return [], pd.DataFrame(columns=["Name", "Grade/Score", "Feedback Comment"]), gr.update(value=None)
+    csv_filename = "session_batch_grades.csv"
+    empty_df = pd.DataFrame(columns=["Name", "Grade/Score", "Feedback Comment"])
+    empty_df.to_csv(csv_filename, index=False)
+    return [], empty_df, csv_filename, pd.DataFrame(columns=["Name", "Grade/Score", "Feedback Comment"]), gr.update(value=None)
+
+def clear_groster_batch():
+    csv_filename = "converted_grades.csv"
+    empty_df = pd.DataFrame(columns=["Points", "GPA Decimal", "Letter Grade"])
+    empty_df.to_csv(csv_filename, index=False)    
+    return 0, None, 0, csv_filename   
 
 def handle_file_dropdown_change(filename):
     # Runs the original load function to get the dropdown list choices
@@ -179,7 +188,7 @@ def load_grade_scale():
         "MAX_POINTS=1000",
         "93=4.0,A", "90=3.7,A-", "87=3.3,B+", "83=3.0,B", "80=2.7,B-",
         "77=2.3,C+", "73=2.0,C", "70=1.7,C-", "67=1.3,D+", "63=1.0,D",
-        "60=0.7,D-", "0=0.0,F"
+        "0=0.0,F"
     ]
     
     if not os.path.exists(CONFIG_FILE):
@@ -374,7 +383,7 @@ def run_reminders(current_wk_num, greeting_txt, context_txt, reading_topic, due_
         
     a2 = check_and_append_assignment(assign_2_name, assign_2_pts, assign_2_pct)
     if a2: 
-        assignments_list.append(a2 + " Remember: ONLY the POST is due this week, replies are due NEXT week")
+        assignments_list.append(a2)
         
     a3 = check_and_append_assignment(assign_3_name, assign_3_pts, assign_3_pct)
     if a3: 
@@ -420,11 +429,9 @@ def export_modified_dataframe(df):
     return html_view, csv_path
 
 def load_preset_link():
-    return "SET PRESET ICS link on LN 425 of janet.py"
+    return "https://api.calendar.moderncampus.net/pubcalendar/CHANGEME"
 
 
-
-# Converts a Pandas DataFrame into a clean, copy-paste friendly HTML table
 def make_html_table(df):
     # color: #222222 forces dark text on cells across all dark/light browser templates
     html = '<table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif; color: #222222;">'
@@ -565,7 +572,6 @@ with gr.Blocks(title="Janet") as app:
                             day_target_2 = gr.Dropdown(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], value="Wednesday", label="Due Box 2 Assignment Day")
                             recur_in_2 = gr.Textbox(label="Recurring Sequence Format 2 (uses #)", value="Discussion #, Reply #")
                     
-                    # Clean Options for ICS Selection
                     gr.Markdown("### 📅 ICS Calendar Overlay Options")
                     preset_btn = gr.Button("🔗 Use Modern Campus Preset Link", variant="primary")
                     ics_in = gr.Textbox(label="Custom ICS Web Overlay URL Link", value="")
@@ -573,7 +579,6 @@ with gr.Blocks(title="Janet") as app:
                     
                     cal_btn = gr.Button("Generate Agenda Matrix", variant="primary")
                 with gr.Column():
-                    # Dual View Layout for Editing vs Copy/Pasting
                     with gr.Tabs():
                         with gr.TabItem("✏️ Edit Table"):
                             gr.Markdown("👇 **Double-click any cell below to type edit text changes directly:**")
@@ -590,17 +595,14 @@ with gr.Blocks(title="Janet") as app:
                     
                     cal_download = gr.File(label="📥 Download Calendar CSV for Excel")
             
-            # Wire up preset button click interaction
             preset_btn.click(fn=load_preset_link, inputs=[], outputs=[ics_in])
 
-            # Clicking generate populates both the dataframe view and the copy-pasteable HTML grid
             cal_btn.click(
                 fn=generate_and_save,
                 inputs=[start_in, end_in, days_in, day_target_1, recur_in_1, day_target_2, recur_in_2, ics_in, ics_file_in],
                 outputs=[cal_out, cal_html_out, cal_download]
             )
             
-            # Editing values in the dataframe view instantly refreshes your selection/copy grid
             cal_out.change(
                 fn=export_modified_dataframe,
                 inputs=[cal_out],
@@ -613,7 +615,6 @@ with gr.Blocks(title="Janet") as app:
         with gr.TabItem("📊 2. Grade Roster"):
             gr.Markdown("### Student Points-to-GPA Processor")
             
-            # Initial baseline reading to populate the startup component field value safely
             _, initial_max_points = load_grade_scale()
             
             with gr.Row():
@@ -621,7 +622,6 @@ with gr.Blocks(title="Janet") as app:
                     points_input = gr.Textbox(label="Paste Points Column From Excel (One point value per line)", value="1000\n950\n880\n720\n610", lines=12)
                     
                     with gr.Row():
-                        # Added customizable maximum total score indicator component box
                         max_points_in = gr.Number(label="Maximum Possible Class Points", value=initial_max_points, precision=1)
                     
                     column_select = gr.CheckboxGroup(
@@ -630,23 +630,22 @@ with gr.Blocks(title="Janet") as app:
                         label="Select Columns to Generate for Excel"
                     )
                     
-                    grade_btn = gr.Button("Compute Alphanumeric Metrics Profiles", variant="primary")
+                    grade_btn = gr.Button("Convert Grades", variant="primary")
                     gr.Markdown("💡 *Tip: You can modify standard baselines inside **`grade_scale.txt`** to change defaults across subsequent app boots.*")
                 with gr.Column():
                     gr.Markdown("👇 **Highlight the values, then copy to Excel:**")
                     
                     gpa_column_out = gr.Code(label="Excel Ready Column", lines=14, language="markdown", interactive=False)
                     roster_download = gr.File(label="📥 Download Grades CSV for Excel")
-                    
+                    clear_batch_btn = gr.Button("🗑️ Clear All Saved Data", variant="primary")
+
             def process_grades(points_raw, selected_cols, custom_max_points):
                 lines_pts = [p.strip() for p in points_raw.split("\n") if p.strip()][:40]
                 results = []
                 output_lines = []
                 
-                # Fetch scale configurations (ignore text file's max points, use active UI field value)
                 current_scale, _ = load_grade_scale()
                 
-                # Protect against zero division runtime crashes
                 max_pts_denominator = float(custom_max_points) if custom_max_points and float(custom_max_points) > 0 else 1.0
                 
                 for i in range(max(40, len(lines_pts))):
@@ -657,7 +656,6 @@ with gr.Blocks(title="Janet") as app:
                         except ValueError:
                             score_val = 0.0
                             
-                    # Scale percentages based dynamically on input variable values
                     pct = (score_val / max_pts_denominator) * 100
                     
                     gpa, letter = 0.0, "F"
@@ -687,11 +685,15 @@ with gr.Blocks(title="Janet") as app:
                 
                 return clipboard_payload, csv_path
 
-            # Included the maximum points variable input targeting to the calculation trigger loop
             grade_btn.click(
                 process_grades, 
                 inputs=[points_input, column_select, max_points_in], 
                 outputs=[gpa_column_out, roster_download]
+            )
+            clear_batch_btn.click(
+                fn=clear_groster_batch,
+                inputs=[],
+                outputs=[points_input, column_select, max_points_in, roster_download]
             )
 
 
@@ -709,7 +711,6 @@ with gr.Blocks(title="Janet") as app:
                     student_name = gr.Textbox(label="Student Name:", placeholder="Janet")
                     student_score = gr.Number(label="Assigned Points / Grade:", value=100.0, precision=1)
                     
-                    # Master container housing our dynamic component mapping layer slots
                     with gr.Column(visible=True) as dynamic_container:
                         gr.Markdown("### 💬 Custom Template Input Elements")
                         slot_0 = gr.Dropdown(visible=False, choices=[])
@@ -732,7 +733,7 @@ with gr.Blocks(title="Janet") as app:
                     
                     batch_btn = gr.Button("➕ Append Record to Session Batch Table", variant="primary")
                     
-                    gr.Markdown("### 🗃️ Current Session Batch (Browser State Only)")
+                    gr.Markdown("### 🗃️ Current Session Batch (Autosaves to session_batch_grades.csv)")
                     batch_table = gr.Dataframe(
                         headers=["Name", "Grade/Score", "Feedback Comment"],
                         datatype=["str", "number", "str"],
@@ -742,7 +743,7 @@ with gr.Blocks(title="Janet") as app:
                     
                     with gr.Row():
                         batch_download = gr.File(label="📥 Export Session Batch CSV")
-                        clear_batch_btn = gr.Button("🗑️ Clear Session Data", variant="secondary")
+                        clear_batch_btn = gr.Button("🗑️ Clear All Saved Data", variant="primary")
                         
                     gr.Markdown("### 📂 Template File Manager")
                     with gr.Row():
@@ -765,21 +766,18 @@ with gr.Blocks(title="Janet") as app:
             
             upload_box.upload(fn=handle_file_upload, inputs=[upload_box], outputs=[file_dropdown])
             
-            # Safely triggers the layout renderer as the page mounts onto the browser engine
             app.load(
                 fn=dynamic_render_template, 
                 inputs=[file_dropdown], 
                 outputs=[dynamic_container] + slot_list + [template_download]
             )
             
-            # Connect execution tracking logic safely linking parameters 
             generate_comment_btn.click(
                 fn=build_student_feedback,
                 inputs=[student_name, file_dropdown] + slot_list,
                 outputs=[comment_out]
             )
             
-            # Connect student batch tracking tools
             batch_btn.click(
                 fn=append_to_batch,
                 inputs=[student_name, student_score, comment_out, batch_state],
@@ -887,7 +885,6 @@ with gr.Blocks(title="Janet") as app:
             gr.Markdown("### Canned Email Geneator")
             
             initial_boundary_files = list_boundary_files()
-            # Safely grab only the first filename element string instead of passing a raw array list
             starting_value = initial_boundary_files[0] if initial_boundary_files else None
             
             with gr.Row():
@@ -915,7 +912,6 @@ with gr.Blocks(title="Janet") as app:
                     gr.Markdown("### 📂 Boundary Template Repository Options")
                     with gr.Row():
                         with gr.Column():
-                            # Replaced full list reference with the isolated starting_value variable string
                             file_dropdown_p5 = gr.Dropdown(
                                 choices=initial_boundary_files, 
                                 value=starting_value, 
@@ -973,9 +969,8 @@ with gr.Blocks(title="Janet") as app:
                 outputs=[diff_out]
             )
 
-
-if __name__ == "__main__":
-    # Fetch credentials dynamically from the docker-compose environment variables
+def start_app():
+    # Fetch credentials dynamically from environment variables
     auth_user = os.environ.get("GRADIO_AUTH_USER")
     auth_pass = os.environ.get("GRADIO_AUTH_PASSWORD")
     
@@ -983,8 +978,11 @@ if __name__ == "__main__":
 
     app.launch(
         server_name="0.0.0.0", 
-        server_port=7435, 
+        server_port=7435,           
         show_error=True,
         auth=auth_credentials,
         theme=gr.Theme.from_hub("hmb/wii")
     )
+
+if __name__ == "__main__":
+    start_app()
