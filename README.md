@@ -43,7 +43,7 @@ Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collectio
 </details>
 
 <details>
-<summary><b>🛡️ Generate canned/semi-canned emails to students</b></summary>
+<summary><b>🥫 Generate canned/semi-canned emails to students</b></summary>
 
 - Remind a student they missed a deadline
 - Warn a student about behavior or grades
@@ -58,11 +58,11 @@ Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collectio
 <details>
 <summary><b>👩🏾‍⚖️ FERPA friendly**</b></summary>
 
-- No student record/data is saved on the server.
-- ALL work is held only in the browser session. Close the tab and poof, it's gone.
+- No student record/data is saved on the server permanently. You can force purge sensitive data at any time.
+- Most work is held only in the browser session. Close the tab and poof, it's gone.
 - All CSVs are 'deliberative' or 'process' documents, so they shouldn't need record retention**
-- Be extra compliant by not using last names or avoiding names all together.
-- If you're worried, don't download anything.
+- Be extra compliant by not using last names or avoiding names all together. (e.g. Instead of a student name use 'there' and all comments become "Hi there!")
+- If you're worried, don't download anything, and purge data often.
 - **I'm not a lawyer. I'm not your lawyer. This is not legal advice.
 
 </details>
@@ -82,6 +82,7 @@ Janet (not a [girl](https://www.youtube.com/watch?v=HicS3qBJ0y4)) is a collectio
 - Runs in docker, so you control this.
 - Works with a reverse proxy.
 - You have easy access to the docker container to verify compliance.
+- Local only release coming soon.
 
 </details>
 
